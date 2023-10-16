@@ -8,7 +8,7 @@ abstract class ApiManager {
   static const String apiKey = "a2803275cc264f5ab82151862011361a";
   static const String baseUrl = "newsapi.org";
 
-  static Future<SourcesResponse> getSources(String categoryId) async {
+  static Future<List<Source>> getSources(String categoryId) async {
     try {
       Response response = await get(Uri.parse(
           "https://newsapi.org/v2/top-headlines/sources?apiKey=a2803275cc264f5ab82151862011361a&&category=$categoryId"));
@@ -18,7 +18,7 @@ abstract class ApiManager {
           SourcesResponse.fromJson(jsonDecode(response.body));
       if (response.statusCode >= 200 && response.statusCode < 300
           && sourcesResponse.sources?.isNotEmpty == true) {
-        return sourcesResponse;
+        return sourcesResponse.sources!;
       } else {
         throw Exception(sourcesResponse.message ??
             "Something went wrong please try again later");

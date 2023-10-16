@@ -1,59 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:news_mon_c9/api_manager/api_manager.dart';
-import 'package:news_mon_c9/model/category_dm.dart';
 import 'package:news_mon_c9/model/sources_response.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_list.dart';
+import 'package:news_mon_c9/ui/screens/home/tabs/news/news_tab_view_model.dart';
+import 'package:news_mon_c9/ui/widgets/error_widget.dart' as e;
+import 'package:news_mon_c9/ui/widgets/loading_widget.dart';
+import 'package:provider/provider.dart';
 
 class NewsTab extends StatefulWidget {
   String categoryId;
+
   NewsTab({required this.categoryId});
+
   @override
   State<NewsTab> createState() => _NewsTabState();
 }
 
-class _NewsTabState extends State<NewsTab> {
-  int currentTab = 0;
+class _NewsTabState extends State<NewsTab> with TickerProviderStateMixin {
+  late NewsTabViewModel viewModel = NewsTabViewModel();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    viewModel.getSources(widget.categoryId);
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: ApiManager.getSources(widget.categoryId),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else if (snapshot.hasData) {
-            return buildTabs(snapshot.data!.sources!);
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        });
+    return ChangeNotifierProvider(
+      create: (_) {
+        return viewModel;
+      },
+      child: Consumer<NewsTabViewModel>(
+        builder: (_, pro, ___) {
+          return viewModel.isLoading
+              ? const LoadingWidget()
+              : viewModel.errorText != null
+                  ? e.ErrorWidget(message: viewModel.errorText!)
+                  : buildTabs(viewModel.sources);
+        },
+      ),
+    );
   }
 
   Widget buildTabs(List<Source> sources) {
-    return DefaultTabController(
-      length: sources.length,
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 8,
-          ),
-          TabBar(
-              onTap: (index) {
-                currentTab = index;
-                setState(() {});
-              },
-              indicatorColor: Colors.transparent,
-              isScrollable: true,
-              tabs: sources.map((singleSource) => buildTab(singleSource,
-                   sources.indexOf(singleSource) == currentTab)).toList()),
-          Expanded(
-            child: TabBarView(
-                children: sources
-                    .map((singleSource) => NewsList(singleSource))
-                    .toList()),
-          )
-        ],
-      ),
+    viewModel.tabController =
+        TabController(length: sources.length, vsync: this);
+    viewModel.tabController.addListener(() {
+      print("Tab: ${viewModel.tabController.index}");
+      viewModel.currentTab = viewModel.tabController.index;
+      setState(() {});
+    });
+    return Column(
+      children: [
+        const SizedBox(
+          height: 8,
+        ),
+        TabBar(
+            onTap: (index) {
+              viewModel.currentTab = index;
+              setState(() {});
+            },
+            indicatorColor: Colors.transparent,
+            isScrollable: true,
+            tabs: sources
+                .map((singleSource) => buildTab(singleSource,
+                    sources.indexOf(singleSource) == viewModel.currentTab))
+                .toList()),
+        Expanded(
+          child: TabBarView(
+              children: sources
+                  .map((singleSource) => NewsList(singleSource))
+                  .toList()),
+        )
+      ],
     );
   }
 
