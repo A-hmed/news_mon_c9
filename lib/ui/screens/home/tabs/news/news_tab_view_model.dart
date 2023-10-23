@@ -1,42 +1,46 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_mon_c9/data/model/sources_response.dart';
 import 'package:news_mon_c9/data/repos/news_repo/data_sources/offline_data_source/offline_data_source.dart';
 import 'package:news_mon_c9/data/repos/news_repo/data_sources/online_data_source/api_manager.dart';
-import 'package:news_mon_c9/data/model/sources_response.dart';
 import 'package:news_mon_c9/data/repos/news_repo/news_repo.dart';
 
-class NewsTabViewModel extends ChangeNotifier{
-  List<Source> sources = [];
-  bool isLoading = false;
-  late TabController tabController;
-  String? errorText;
+class NewsTabViewModel extends Cubit {
   int currentTab = 0;
   OfflineDataSource offlineDataSource = OfflineDataSource();
   ApiManager onlineDataSource = ApiManager();
   late NewsRepo newsRepo;
 
-  NewsTabViewModel(){
-    newsRepo = NewsRepo(offlineDataSource: offlineDataSource,
+  NewsTabViewModel() : super(NewsTabLoadingState()) {
+    newsRepo = NewsRepo(
+        offlineDataSource: offlineDataSource,
         onlineDataSource: onlineDataSource);
   }
 
-
   getSources(String categoryId) async {
-    isLoading = true;
-    notifyListeners();
-
-    try{
+    emit(NewsTabLoadingState());
+    try {
       SourcesResponse? sourcesResponse = await newsRepo.getSources(categoryId);
-      if(sourcesResponse?.sources?.isNotEmpty == true){
-        isLoading = false;
-        sources = sourcesResponse!.sources!;
-        notifyListeners();
-      }else {
+      if (sourcesResponse?.sources?.isNotEmpty == true) {
+        emit(NewsTabSuccessState(sourcesResponse!.sources!));
+      } else {
         throw Exception("Something went wrong please try again later");
       }
-    }catch(e){
-      isLoading = false;
-      errorText = e.toString();
-      notifyListeners();
+    } catch (e) {
+      emit(NewsTabErrorState(e.toString()));
     }
   }
+}
+
+class NewsTabLoadingState {}
+
+class NewsTabSuccessState {
+  List<Source> sources;
+
+  NewsTabSuccessState(this.sources);
+}
+
+class NewsTabErrorState {
+  String errorMessage;
+
+  NewsTabErrorState(this.errorMessage);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_mon_c9/data/model/sources_response.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_list.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_tab_view_model.dart';
@@ -28,19 +29,26 @@ class _NewsTabState extends State<NewsTab> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) {
-        return viewModel;
+    ///Bloc provide
+    ///Bloc Builder
+    ///Bloc listener
+    ///Bloc consumer
+    return BlocConsumer<NewsTabViewModel, dynamic>(
+      bloc: viewModel,
+      listener: (context, state){
+        if(state is int){
+
+        }
       },
-      child: Consumer<NewsTabViewModel>(
-        builder: (_, pro, ___) {
-          return viewModel.isLoading
-              ? const LoadingWidget()
-              : viewModel.errorText != null
-                  ? e.ErrorWidget(message: viewModel.errorText!)
-                  : buildTabs(viewModel.sources);
-        },
-      ),
+      builder: (context, state) {
+        if(state is NewsTabLoadingState){
+          return LoadingWidget();
+        }else if(state is NewsTabErrorState){
+          return e.ErrorWidget(message: state.errorMessage,);
+        }else {
+          return buildTabs((state as NewsTabSuccessState).sources);
+        }
+      },
     );
   }
 
