@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:news_mon_c9/model/sources_response.dart';
+import 'package:news_mon_c9/data/model/sources_response.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_list.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_tab_view_model.dart';
 import 'package:news_mon_c9/ui/widgets/error_widget.dart' as e;
@@ -22,7 +22,6 @@ class _NewsTabState extends State<NewsTab> with TickerProviderStateMixin {
   void initState() {
     // TODO: implement initState
     super.initState();
-
     viewModel.getSources(widget.categoryId);
     // }
   }
@@ -46,36 +45,32 @@ class _NewsTabState extends State<NewsTab> with TickerProviderStateMixin {
   }
 
   Widget buildTabs(List<Source> sources) {
-    viewModel.tabController =
-        TabController(length: sources.length, vsync: this);
-    viewModel.tabController.addListener(() {
-      print("Tab: ${viewModel.tabController.index}");
-      viewModel.currentTab = viewModel.tabController.index;
-      setState(() {});
-    });
-    return Column(
-      children: [
-        const SizedBox(
-          height: 8,
-        ),
-        TabBar(
-            onTap: (index) {
-              viewModel.currentTab = index;
-              setState(() {});
-            },
-            indicatorColor: Colors.transparent,
-            isScrollable: true,
-            tabs: sources
-                .map((singleSource) => buildTab(singleSource,
-                    sources.indexOf(singleSource) == viewModel.currentTab))
-                .toList()),
-        Expanded(
-          child: TabBarView(
-              children: sources
-                  .map((singleSource) => NewsList(singleSource))
+    return DefaultTabController(
+      length: sources.length,
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 8,
+          ),
+          TabBar(
+              onTap: (index) {
+                viewModel.currentTab = index;
+                setState(() {});
+              },
+              indicatorColor: Colors.transparent,
+              isScrollable: true,
+              tabs: sources
+                  .map((singleSource) => buildTab(singleSource,
+                      sources.indexOf(singleSource) == viewModel.currentTab))
                   .toList()),
-        )
-      ],
+          Expanded(
+            child: TabBarView(
+                children: sources
+                    .map((singleSource) => NewsList(singleSource))
+                    .toList()),
+          )
+        ],
+      ),
     );
   }
 

@@ -18,6 +18,14 @@ class SourcesResponse {
       });
     }
   }
+
+  Map<String, dynamic> toJson() {
+    var map = <String, dynamic>{};
+    if (sources != null) {
+      map["sources"] = sources?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
 }
 
 class Source {

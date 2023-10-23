@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:news_mon_c9/model/articles_response.dart';
+import 'package:news_mon_c9/data/model/articles_response.dart';
 
 class ArticleWidget extends StatefulWidget {
   final Article article;

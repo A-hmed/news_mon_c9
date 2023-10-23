@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:news_mon_c9/model/category_dm.dart';
+import 'package:news_mon_c9/data/model/category_dm.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/categories/categories_tab.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/news/news_tab.dart';
 import 'package:news_mon_c9/ui/screens/home/tabs/settings/settings.dart';

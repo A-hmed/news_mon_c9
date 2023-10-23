@@ -1,4 +1,5 @@
-import 'package:news_mon_c9/model/sources_response.dart';
+
+import 'package:news_mon_c9/data/model/sources_response.dart';
 
 class ArticlesResponse {
   String? status;
